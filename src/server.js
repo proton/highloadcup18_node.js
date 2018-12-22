@@ -1,36 +1,10 @@
 const dataArchivePath = '/tmp/data/data.zip';
 const extractedDataDir = '/data'
 
-const fs = require('fs');
-const exec = require('child_process').exec;
-const fastify = require('fastify')({ logger: false });
+const DataLoader = require('./data_loader.js');
 
-let accounts = [];
-
-function addAccount(account) {
-  accounts[account.id] = account;
-}
-
-exec(`unzip ${dataArchivePath} -d ${extractedDataDir}`, (error, _stdout, _stderr) => {
-  if (error !== null) {
-    console.log(`exec error: ${error}`);
-    return;
-  }
-
-  fs.readdir(extractedDataDir, function(_err, files) {
-    const fileNames = files.filter(el => /accounts_\d+.json$/.test(el));
-    fileNames.forEach((fileName) => {
-      console.log(`loading file ${fileName}`)
-      const content = fs.readFileSync(`${extractedDataDir}/${fileName}`, 'utf8');
-      const parsedContent = JSON.parse(content);
-      parsedContent.accounts.forEach(addAccount);
-    });
-    console.log(accounts[1]);
-    console.log(`loaded ${accounts.length} accounts`);
-
-    // global.gc();
-  })
-});
+const dataLoader = new DataLoader({'dataArchivePath': dataArchivePath, 'extractedDataDir': extractedDataDir});
+const data = dataLoader.load();
 
 function accountMatchesQuery(account, query) {
   return Object.entries(query).every( ([key, value]) => {
@@ -77,8 +51,8 @@ function accountMatchesQuery(account, query) {
 function filterAccounts(query) {
   const limit = Number(query.limit);
   let filteredAccounts = [];
-  for(let id = accounts.length - 1; id >= 1; --id) {
-    const account = accounts[id];
+  for(let id = data.accounts.length - 1; id >= 1; --id) {
+    const account = data.accounts[id];
     if (accountMatchesQuery(account, query)) {
       filteredAccounts.push(account);
       if (filteredAccounts.length == limit) break;
@@ -95,7 +69,7 @@ function accountAsJson(account) {
   }, {})
 }
 
-fastify.get('/accounts/filter/', async (request, reply) => {
+fastify.get('/accounts/filter/', async (request, _reply) => {
   const filteredAccounts = filterAccounts(request.query);
   return { accounts: filteredAccounts.map(accountAsJson) };
 })
