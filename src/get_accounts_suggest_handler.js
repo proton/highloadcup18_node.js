@@ -9,7 +9,7 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
   
   call() {
     if(!this.myAccount) {
-      reply.code(404);
+      this.reply.code(404);
       return;
     }
 

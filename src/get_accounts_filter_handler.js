@@ -64,24 +64,24 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
     return Object.entries(this.request.query).every( ([key, value]) => {
       switch (key) {
         case 'sex_eq': return (account.sex == value);
-        // case 'email_domain': return false; // 2	email	domain - выбрать всех, чьи email-ы имеют указанный домен;
-        // case 'email_lt': return false; // lt - выбрать всех, чьи email-ы лексикографически раньше;
-        // case 'email_gt': return false; // lt - выбрать всех, чьи email-ы лексикографически позже;
+        case 'email_domain': return (account.email && account.email.split('@')[1] == value);
+        case 'email_lt': return (account.email < value);
+        case 'email_gt': return (account.email > value);
         case 'status_eq': return (account.status == value);
         case 'status_neq': return (account.status != value);
         case 'fname_eq': return (account.fname == value);
         // case 'fname_any': return false;  // any - соответствие любому имени из перечисленных через запятую;
-        // case 'fname_null': return false;  // null - выбрать всех, у кого указано имя (если 0) или не указано (если 1);
+        case 'fname_null': return (value == '1' ? !account.fname : account.fname);
         case 'sname_eq': return (account.sname == value);
-        // case 'sname_starts': return false;  // starts - выбрать всех, чьи фамилии начинаются с переданного префикса;
-        // case 'sname_null': return false;  // null - выбрать всех, у кого указана фамилия (если 0) или не указана (если 1);
+        case 'sname_starts': return (account.sname && account.sname.startsWith(value));
+        case 'sname_null': return (value == '1' ? !account.sname : account.sname);
         // case 'phone_code': return false;  // 6	phone	code - выбрать всех, у кого в телефоне конкретный код (три цифры в скобках);
         // case 'phone_code_null': return false;  // null - аналогично остальным полям;
         case 'country_eq': return (account.country == value);
-        // case 'country_null': return false;  // null - аналогично;
+        case 'country_null': return (value == '1' ? !account.country : account.country);
         case 'city_eq': return (account.city == value);
         // case 'city_any': return false;  // any - в любом из перечисленных через запятую городов;
-        // case 'city_null': return false;  // null - аналогично;
+        case 'city_null': return (value == '1' ? !account.city : account.city);
         // case 'birth_lt': return false;  // 9	birth	lt - выбрать всех, кто родился до указанной даты;
         // case 'birth_gt': return false;  // gt - после указанной даты;
         // case 'year': return false;  // year - кто родился в указанном году;
@@ -90,6 +90,7 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
         // case 'likes_contains': return false;  // 11	likes	contains - выбрать всех, кто лайкал всех перечисленных пользователей (в значении - перечисленные через запятые id);
         // case 'premium_now': return false;  // 12	premium	now - все у кого есть премиум на текущую дату;
         // case 'premium_null': return false;  // null - аналогично остальным;
+        case 'premium_null': return (value == '1' ? !account.premium : account.premium);
       }
       return true;
     });
