@@ -3,7 +3,9 @@ module.exports = class WebRequestHandler {
     this.request = request;
     this.reply = reply;
     this.data = data;
-    
+
     this.bindMethods();
   }
+
+  bindMethods() {}
 }
