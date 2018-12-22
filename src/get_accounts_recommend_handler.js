@@ -35,7 +35,7 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
     if(aCommonInterests != bCommonInterests) return aCommonInterests - bCommonInterests;
     const aAgeDiff = Math.abs(a.birth - this.myAccount.birth);
     const bAgeDiff = Math.abs(b.birth - this.myAccount.birth);
-    if(aAgeDiff != bAgeDiff) return aAgeDiff - bAgeDiff;
+    if(aAgeDiff != bAgeDiff) return bAgeDiff - aAgeDiff;
     return b.id - a.id;
   }
 
@@ -49,7 +49,7 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
     if (this.myAccount.sex == account.sex) return false;
     if (this.request.query.city && this.request.query.city != account.city) return false;
     if (this.request.query.country && this.request.query.country != account.country) return false;
-    if (this.myAccount.sex == account.sex) return false;
+    if (commonInterests(account) == 0) return false;
     return true;
   }
 
