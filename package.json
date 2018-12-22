@@ -1,0 +1,11 @@
+{
+  "name": "highloadcup18_node.js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Peter Savichev (proton) <psavichev@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "fastify": "^1.13.3"
+  }
+}
