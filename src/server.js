@@ -3,7 +3,7 @@ const WebServer = require('./web_server.js');
 
 const config = {
   data: {
-    dataArchivePath: '/tmp/data/data.zip',
+    dataPath: '/tmp/data/',
     extractedDataDir: '/data'
   },
   web: {

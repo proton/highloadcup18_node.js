@@ -2,11 +2,11 @@ const fs = require('fs');
 const exec = require('child_process').exec;
 
 module.exports = class DataLoader {
-  constructor({dataArchivePath, extractedDataDir}) {
-    this.dataArchivePath = dataArchivePath;
-    this.extractedDataDir = extractedDataDir;
+  constructor(dataConfig) {
+    this.dataConfig = dataConfig;
     this.data = {
-      accounts: []
+      accounts: [],
+      ts: 0
     };
 
     this.afterUnzip = this.afterUnzip.bind(this);
@@ -15,9 +15,19 @@ module.exports = class DataLoader {
   }
 
   load() {
-    exec(this.unzipCmd(), this.afterUnzip);
-    // global.gc();
+    this.loadTimestamp();
+    this.loadData();
     return this.data;
+  }
+
+  loadData() {
+    exec(this.unzipCmd(), this.afterUnzip);
+  }
+
+  loadTimestamp() {
+    const filePath = `${this.dataConfig.dataPath}/options.txt`;
+    const content = fs.readFileSync(filePath, 'utf8');
+    this.data.ts = Number(content.split("\n")[0]);
   }
 
   afterUnzip(error, _stdout, _stderr) {
@@ -26,20 +36,21 @@ module.exports = class DataLoader {
       return;
     }
   
-    fs.readdir(this.extractedDataDir, (_err, fileNames) => {
+    fs.readdir(this.dataConfig.extractedDataDir, (_err, fileNames) => {
       fileNames
         .filter(el => /accounts_\d+.json$/.test(el))
         .forEach(this.loadFile);
-      console.log(`loaded ${this.data.accounts.length - 1} accounts`);
     });
   }
 
   loadFile(fileName) {
     console.log(`loading file ${fileName}`);
-    const filePath = `${this.extractedDataDir}/${fileName}`;
+    const filePath = `${this.dataConfig.extractedDataDir}/${fileName}`;
     const content = fs.readFileSync(filePath, 'utf8');
     const parsedContent = JSON.parse(content);
     parsedContent.accounts.forEach(this.addAccount);
+    global.gc();
+    console.log(`loaded ${this.data.accounts.length - 1} accounts`);
   }
 
   addAccount(account) {
@@ -47,6 +58,7 @@ module.exports = class DataLoader {
   }
 
   unzipCmd() {
-    return `unzip ${this.dataArchivePath} -d ${this.extractedDataDir}`;
+    const archivePath = `${this.dataConfig.dataPath}/data.zip`;
+    return `unzip ${archivePath} -d ${this.dataConfig.extractedDataDir}`;
   }
 };

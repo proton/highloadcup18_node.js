@@ -2,6 +2,12 @@ const WebRequestHandler = require('./web_request_handler.js')
 
 const displayedFields = ['id', 'email', 'status', 'fname', 'sname', 'birth', 'premium'];
 
+const statuses = {
+  'свободны': 3,
+  'всё сложно': 2,
+  'занятые': 1
+}
+
 module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
   constructor(...args) {
     super(...args);
@@ -21,19 +27,34 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
     return { accounts: accounts.map(this.asJson) };
   }
 
-  compareAccounts(a, b) {
+  compareAccounts(b, a) {
+    if(this.hasPremium(a) != this.hasPremium(b)) return this.hasPremium(a) ? 1 : -1
+    if(a.status != b.status) return statuses[a.status] - statuses[b.status];
+    const aCommonInterests = this.commonInterests(a);
+    const bCommonInterests = this.commonInterests(b);
+    if(aCommonInterests != bCommonInterests) return aCommonInterests - bCommonInterests;
+    const aAgeDiff = Math.abs(a.birth - this.myAccount.birth);
+    const bAgeDiff = Math.abs(b.birth - this.myAccount.birth);
+    if(aAgeDiff != bAgeDiff) return aAgeDiff - bAgeDiff;
+    return b.id - a.id;
+  }
 
-    // Совместимость определяется как функция от двух пользователей: compatibility = f (me, somebody). Функция строится самими участниками, но так, чтобы соответствовать следующим правилам:
+  commonInterests(account) {
+    if(!account.interests) return 0;
+    if(!this.myInterestsSet) this.myInterestsSet = new Set(this.myAccount.interests);
+    return account.interests.reduce((sum, obj) => this.myInterestsSet.has(obj) ? sum + 1 : sum, 0);
+  }
 
-    // Наибольший вклад в совместимость даёт наличие статуса "свободны". Те кто "всё сложно" идут во вторую очередь, а "занятые" в третью и последнюю (очень вероятно их вообще не будет в ответе).
-    // Далее идёт совместимость по интересам. Чем больше совпавших интересов у пользователей, тем более они совместимы.
-    // Третий по значению параметр - различие в возрасте. Чем больше разница, тем меньше совместимость.
-    // Те, у кого активирован премиум-аккаунт, пропихиваются в самый верх, вперёд обычных пользователей. Если таких несколько, то они сортируются по совместимости между собой.
-    // Если общих интересов нет, то стоит считать пользователей абсолютно несовместимыми с compatibility = 0.
-    // Если в ответе оказались одинаково совместимые пользователи (одни и те же status, interests, birth), то выводить их по возрастанию id
+  matchesQuery(account) {
+    if (this.myAccount.sex == account.sex) return false;
+    if (this.request.query.city && this.request.query.city != account.city) return false;
+    if (this.request.query.country && this.request.query.country != account.country) return false;
+    if (this.myAccount.sex == account.sex) return false;
+    return true;
   }
 
   bindMethods() {
+    this.compareAccounts = this.compareAccounts.bind(this);
     this.asJson = this.asJson.bind(this);
     this.matchesQuery = this.matchesQuery.bind(this);
   }
@@ -43,16 +64,6 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
       acc[key] = account[key];
       return acc;
     }, {})
-  }
-
-  matchesQuery(account) {
-    return Object.entries(this.request.query).every( ([key, value]) => {
-      switch (key) {
-        case 'city': return (account.city == value);
-        case 'country': return (account.country == value);
-      }
-      return true;
-    });
   }
   
   filterAccounts() {

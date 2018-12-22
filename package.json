@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node --expose-gc src/server.js"
   },
   "author": "Peter Savichev (proton) <psavichev@gmail.com>",
   "license": "MIT",

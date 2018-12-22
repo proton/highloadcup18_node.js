@@ -6,6 +6,9 @@ module.exports = class GetAccountGroupHandler extends WebRequestHandler {
   call() {
     if(isNaN(this.limit))
       return this.reply.code(400).type('text/html').send('Error');
+    const order = this.request.query.order;
+    if(order != '1' && order != '-1')
+      return this.reply.code(400).type('text/html').send('Error');
 
     const asc = (this.request.query.order == '1');
 

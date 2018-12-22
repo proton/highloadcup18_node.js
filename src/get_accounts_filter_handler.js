@@ -91,7 +91,7 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
         case 'interests_contains': return (account.interests && value.split(',').every(v => account.interests.includes(v)));
         case 'interests_any': return (account.interests && value.split(',').some(v => account.interests.includes(v)));
         case 'likes_contains': return (account.likes && value.split(',').every(v => account.likes.some(h => h.id == v)));
-        // case 'premium_now': return false;  // 12	premium	now - все у кого есть премиум на текущую дату;
+        case 'premium_now': return this.hasPremium(account);
         case 'premium_null': return (value == '1' ? !account.premium : account.premium);
       }
       return true;
