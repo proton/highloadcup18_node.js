@@ -8,10 +8,10 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
   }
   
   call() {
-    if(!this.myAccount) {
-      this.reply.code(404);
-      return;
-    }
+    if(!this.myAccount)
+      return this.reply.code(404).type('text/html').send('Not Found');
+    if(isNaN(this.limit))
+      return this.reply.code(400).type('text/html').send('Error');
 
     return '';
     // console.log(this.request.params.user_id)
@@ -90,13 +90,12 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
   // }
   
   // filterAccounts() {
-  //   const limit = Number(this.request.query.limit);
   //   let filteredAccounts = [];
   //   for(let id = this.data.accounts.length - 1; id >= 1; --id) {
   //     const account = this.data.accounts[id];
   //     if (this.matchesQuery(account)) {
   //       filteredAccounts.push(account);
-  //       if (filteredAccounts.length == limit) break;
+  //       if (filteredAccounts.length == this.limit) break;
   //     }
   //   }
   //   return filteredAccounts;

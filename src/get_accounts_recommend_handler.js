@@ -10,15 +10,14 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
   }
   
   call() {
-    if(!this.myAccount) {
-      this.reply.code(404);
-      return;
-    }
-
-    const limit = Number(this.request.query.limit);
+    if(!this.myAccount)
+      return this.reply.code(404).type('text/html').send('Not Found');
+    if(isNaN(this.limit))
+      return this.reply.code(400).type('text/html').send('Error');
+    
     let accounts = this.filterAccounts()
                        .sort(this.compareAccounts)
-                       .slice(0, limit);
+                       .slice(0, this.limit);
     return { accounts: accounts.map(this.asJson) };
   }
 

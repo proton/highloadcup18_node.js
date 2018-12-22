@@ -23,9 +23,9 @@ const dispayedFieldsMapping = {
   'birth_lt': 'birth',
   'birth_gt': 'birth',
   'year': 'year',
-  'interests_contains': 'interests',
-  'interests_any': 'interests',
-  'likes_contains': 'likes',
+  'interests_contains': '',
+  'interests_any': '',
+  'likes_contains': '',
   'premium_now': 'premium',
   'premium_null': 'premium',
   'query_id': '',
@@ -34,6 +34,9 @@ const dispayedFieldsMapping = {
 
 module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
   call() {
+    if(isNaN(this.limit))
+      return this.reply.code(400).type('text/html').send('Error');
+      
     const accounts = this.filterAccounts();
     return { accounts: accounts.map(this.asJson) };
   }
@@ -75,7 +78,7 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
         case 'sname_eq': return (account.sname == value);
         case 'sname_starts': return (account.sname && account.sname.startsWith(value));
         case 'sname_null': return (value == '1' ? !account.sname : account.sname);
-        // case 'phone_code': return false;  // 6	phone	code - выбрать всех, у кого в телефоне конкретный код (три цифры в скобках);
+        case 'phone_code': return (account.phone && account.sname.includes(`(${value})`));
         case 'phone_null': return (value == '1' ? !account.phone : account.phone);
         case 'country_eq': return (account.country == value);
         case 'country_null': return (value == '1' ? !account.country : account.country);
@@ -84,29 +87,24 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
         case 'city_null': return (value == '1' ? !account.city : account.city);
         case 'birth_lt': return (value - account.birth > 0);
         case 'birth_gt': return (value - account.birth < 0);
-        // case 'birth_year': return (value == (new Date(account.birth * 100)).getFullYear());
-        case 'interests_any': return (account.interests && account.interests.length && value.split(',').some(v => account.interests.includes(v)));
-        case 'likes_contains': return (account.likes && account.likes.length && value.split(',').some(v => account.likes.includes(v)));
+        case 'birth_year': return (value == this.timeToYear(account.birth));
+        case 'interests_contains': return (account.interests && value.split(',').every(v => account.interests.includes(v)));
+        case 'interests_any': return (account.interests && value.split(',').some(v => account.interests.includes(v)));
+        case 'likes_contains': return (account.likes && value.split(',').every(v => account.likes.some(h => h.id == v)));
         // case 'premium_now': return false;  // 12	premium	now - все у кого есть премиум на текущую дату;
         case 'premium_null': return (value == '1' ? !account.premium : account.premium);
-        // case 'query_id': return true;
-        // case 'limit': return true;
-        // default:
-        //   console.log(key, value);
-        //   return true;
       }
       return true;
     });
   }
   
   filterAccounts() {
-    const limit = Number(this.request.query.limit);
     let filteredAccounts = [];
     for(let id = this.data.accounts.length - 1; id >= 1; --id) {
       const account = this.data.accounts[id];
       if (this.matchesQuery(account)) {
         filteredAccounts.push(account);
-        if (filteredAccounts.length == limit) break;
+        if (filteredAccounts.length == this.limit) break;
       }
     }
     return filteredAccounts;
