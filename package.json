@@ -1,7 +1,10 @@
 {
   "name": "highloadcup18_node.js",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
   "author": "Peter Savichev (proton) <psavichev@gmail.com>",
   "license": "MIT",
   "private": false,
