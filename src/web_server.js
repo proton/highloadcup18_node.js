@@ -4,6 +4,7 @@ const GetAccountsFilterHandler = require('./get_accounts_filter_handler.js');
 const GetAccountsGroupHandler = require('./get_accounts_group_handler.js');
 const GetAccountsRecommendHandler = require('./get_accounts_recommend_handler.js');
 const GetAccountsSuggestHandler = require('./get_accounts_suggest_handler.js');
+const PostAccountsCreateHandler = require('./post_accounts_create_handler.js');
 
 module.exports = class WebServer {
   constructor(webConfig, data) {
@@ -16,6 +17,7 @@ module.exports = class WebServer {
     fastify.get('/accounts/group/', this.callHandler(GetAccountsGroupHandler));
     fastify.get('/accounts/:user_id/recommend/', this.callHandler(GetAccountsRecommendHandler));
     fastify.get('/accounts/:user_id/suggest/', this.callHandler(GetAccountsSuggestHandler));
+    fastify.post('/accounts/new/', this.callHandler(PostAccountsCreateHandler));
 
     try {
       fastify.listen(this.webConfig.port, this.webConfig.host)
