@@ -20,7 +20,7 @@ module.exports = class WebServer {
     fastify.get('/accounts/:user_id/recommend/', this.callHandler(GetAccountsRecommendHandler));
     fastify.get('/accounts/:user_id/suggest/', this.callHandler(GetAccountsSuggestHandler));
     fastify.post('/accounts/new/', this.callHandler(PostAccountsCreateHandler));
-    // fastify.post('/accounts/:user_id/', this.callHandler(PostAccountsUpdateHandler));
+    fastify.post('/accounts/:user_id/', this.callHandler(PostAccountsUpdateHandler));
 
     try {
       fastify.listen(this.config.port, this.config.host);

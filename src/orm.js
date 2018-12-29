@@ -1,4 +1,4 @@
-// const Utils = require('./utils.js');
+const Utils = require('./utils.js');
 
 module.exports = class Orm {
   constructor(db) {
@@ -9,7 +9,7 @@ module.exports = class Orm {
   }
 
   static fillEmptyAccountFields(account) {
-    const attrs = ['id', 'email', 'fname', 'sname', 'status', 'country', 'city', 'phone', 'sex', 'joined', 'birth'];
+    const attrs = Utils.accountAttrs;
     for (const attr of attrs)
       if(account[attr] === undefined)
         account[attr] = null;
@@ -35,6 +35,31 @@ module.exports = class Orm {
         account.likes.map(like => `(${account.id}, ${like.id}, ${like.ts})`).join(', ');
       this.db.exec(sql);
     }
+  }
+
+  updateAccount(account, updates) {
+    if (updates.interests) {
+      this.db.exec(`DELETE FROM account_interests WHERE account_id = ${account.id}`);
+      const sql = 'INSERT INTO account_interests (account_id, interest) VALUES ' +
+        updates.interests.map(interest => `(${account.id}, '${interest}')`).join(', ');
+      this.db.exec(sql);
+      delete updates.interests;
+    }
+
+    if ( updates.hasOwnProperty('premium')) {
+      if (updates.premium) {
+        updates.premium_start = updates.premium.start;
+        updates.premium_finish = updates.premium.finish;
+      }
+      else updates.premium_start = updates.premium_finish = null;
+      delete updates.premium;
+    }
+
+    const keys = Object.keys(updates);
+    if (keys.length === 0) return;
+
+    const sql = 'UPDATE accounts SET ' + keys.map(k => `${k} = @${k}`).join(', ') + ` WHERE id = ${account.id}`;
+    this.db.prepare(sql).run(updates);
   }
 
   findAccount(id) {

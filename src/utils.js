@@ -41,3 +41,5 @@ module.exports = class Utils {
     });
   };
 };
+
+module.exports.accountAttrs = ['id', 'email', 'fname', 'sname', 'status', 'country', 'city', 'phone', 'sex', 'joined', 'birth'];
