@@ -9,7 +9,7 @@ const config = {
   },
   db: {
     filePath: '/db.db',
-    inMemory: false
+    inMemory: true
   },
   web: {
     host: '0.0.0.0',
