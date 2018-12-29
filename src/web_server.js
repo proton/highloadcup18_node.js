@@ -8,10 +8,10 @@ const PostAccountsCreateHandler = require('./request_handlers/post_accounts_crea
 const PostAccountsUpdateHandler = require('./request_handlers/post_accounts_update_handler.js');
 
 module.exports = class WebServer {
-  constructor({config, data, db}) {
+  constructor({config, data, orm}) {
     this.config = config;
     this.data = data;
-    this.db = db;
+    this.orm = orm;
   }
   
   start() {
@@ -32,7 +32,7 @@ module.exports = class WebServer {
 
   callHandler(klass) {
     return async (request, reply) => {
-      const handler = new klass(request, reply, this.data);
+      const handler = new klass(request, reply, this.data, this.orm);
       try {
         return handler.call()
       } catch (err) {

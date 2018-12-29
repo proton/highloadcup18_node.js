@@ -1,5 +1,6 @@
 const DataLoader = require('./data_loader.js');
 const WebServer = require('./web_server.js');
+const Orm = require('./orm.js');
 
 const config = {
   data: {
@@ -16,9 +17,10 @@ const config = {
 };
 
 const db = require('better-sqlite3')(config.db.file_path);
+const orm = new Orm(db);
 
-const dataLoader = new DataLoader({ config: config.data, db: db });
+const dataLoader = new DataLoader({ config: config.data, orm: orm });
 const data = dataLoader.load();
 
-const webServer = new WebServer({ config: config.web, data: data, db: db });
+const webServer = new WebServer({ config: config.web, data: data, orm: orm });
 webServer.start();
