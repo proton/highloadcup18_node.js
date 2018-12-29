@@ -41,6 +41,10 @@ module.exports = class Orm {
     return this.selectAccountQuery.get(id);
   }
 
+  isAccountExists(id) {
+    return this.esistAccountQuery.get(id);
+  }
+
   accountsCount() {
     return this.db.prepare('SELECT COUNT(*) as cnt FROM accounts').get().cnt;
   }
@@ -50,6 +54,7 @@ module.exports = class Orm {
       (id, email, fname, sname, status, country, city, phone, sex, joined, birth, premium_start, premium_finish)
       VALUES (@id, @email, @fname, @sname, @status, @country, @city, @phone, @sex, @joined, @birth, @premium_start, @premium_finish)`);
     this.selectAccountQuery = this.db.prepare('SELECT * FROM accounts WHERE id = ?');
+    this.esistAccountQuery = this.db.prepare('SELECT 1 FROM accounts WHERE id = ?');
   }
 
   createTables() {
