@@ -1,6 +1,6 @@
 FROM mhart/alpine-node:11
 
-RUN apk add zip
+RUN apk add --no-cache --virtual .build-deps make gcc g++ python zip sqlite
 
 RUN mkdir /app /data
 WORKDIR /app

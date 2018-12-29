@@ -8,9 +8,10 @@ const PostAccountsCreateHandler = require('./request_handlers/post_accounts_crea
 const PostAccountsUpdateHandler = require('./request_handlers/post_accounts_update_handler.js');
 
 module.exports = class WebServer {
-  constructor(webConfig, data) {
-    this.webConfig = webConfig;
+  constructor({config, data, db}) {
+    this.config = config;
     this.data = data;
+    this.db = db;
   }
   
   start() {
@@ -22,7 +23,7 @@ module.exports = class WebServer {
     fastify.post('/accounts/:user_id/', this.callHandler(PostAccountsUpdateHandler));
 
     try {
-      fastify.listen(this.webConfig.port, this.webConfig.host);
+      fastify.listen(this.config.port, this.config.host);
     } catch (err) {
       fastify.log.error(err);
       process.exit(1);
