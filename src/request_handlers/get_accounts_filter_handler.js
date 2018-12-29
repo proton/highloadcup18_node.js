@@ -132,23 +132,16 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
   }
 
   asJson(account) {
+    if (account.hasOwnProperty('premium_start')) {
+      account.premium = {
+        start: account.premium_start,
+        finish: account.premium_finish
+      };
+      delete account.premium_start;
+      delete account.premium_finish;
+    }
     return account;
-    // return this.displayedFields().reduce((acc, key) => {
-    //   acc[key] = account[key];
-    //   return acc;
-    // }, {})
   }
-
-
-  // displayedFields() {
-  //   if(!this.displayed_fields) {
-  //     this.displayed_fields = Object.keys(this.request.query)
-  //                                   .map(key => dispayedFieldsMapping[key])
-  //                                   .filter(key => key);
-  //     this.displayed_fields = this.displayed_fields.concat(['id', 'email'])
-  //   }
-  //   return this.displayed_fields;
-  // }
 
   buildQuery() {
     const builder = new QueryBuilder(this.orm);
