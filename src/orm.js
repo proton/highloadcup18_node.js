@@ -25,29 +25,18 @@ module.exports = class Orm {
       this.db.exec(sql);
     }
 
-    // if(!account.likes) account.likes = [];
-    // this.data.accounts[account.id] = account;
+    if(account.likes) {
+      const sql = 'INSERT INTO accounts_like (account_id, like_id, like_ts) VALUES ' +
+        account.likes.map(like => `(${account.id}, ${like.id}, ${like.ts})`).join(', ');
+      this.db.exec(sql);
+    }
+
+    if(account.premium) {
+      const sql = 'INSERT INTO accounts_premium (account_id, start, finish) VALUES ' +
+        `(${account.id}, ${account.premium.start}, ${account.premium.finish})`;
+      this.db.exec(sql);
+    }
   }
-
-  // for interest in obj.get('interests', []):
-  // interest_cache.append((obj.get('id'), interest))
-  //
-  // for like in obj.get('likes', []):
-  // like_cache.append((obj.get('id'), like.get('like_id'), like.get('like_ts')))
-  //
-  // premium = obj.get('premium', {})
-  // if premium:
-  //   premium_cache.append((obj.get('id'), premium.get('start'), premium.get('finish')))
-
-  // def load_slice(account_cache, interest_cache, like_cache, premium_cache, cursor, conn):
-  // try:
-  //   cursor.executemany("""INSERT INTO accounts
-  // (email, fname, sname, status, country, city, phone, sex, joined, birth, ext_id)
-  // VALUES (?,?,?,?,?,?,?,?,?,?,?)""", account_cache)
-  // conn.commit()
-  // cursor.executemany("INSERT INTO accounts_interest (account_id, interest) VALUES (?,?)", interest_cache)
-  // cursor.executemany("INSERT INTO accounts_like (account_id, like_id, like_ts) VALUES (?,?,?)", like_cache)
-  // cursor.executemany("INSERT INTO accounts_premium (account_id, start, finish) VALUES (?,?,?)", premium_cache)
 
   accountsCount() {
     return this.db.prepare('SELECT COUNT(*) as cnt FROM accounts').get().cnt;
