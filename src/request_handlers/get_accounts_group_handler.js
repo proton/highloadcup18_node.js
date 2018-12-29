@@ -80,71 +80,25 @@ module.exports = class GetAccountGroupHandler extends WebRequestHandler {
           this.query_builder.groups.push(`accounts.${key}`);
           this.query_builder.orders.push(`accounts.${key} ${order}`);
           break;
+        case 'interests':
+          this.query_builder.selects.add(`account_interests.interest AS "interests"`);
+          this.query_builder.groups.push(`account_interests.interest`);
+          this.query_builder.orders.push(`account_interests.interest ${order}`);
+          this.query_builder.join_interests = true;
+          break;
         default:
           console.log(['key', key])
       }
     }
     
     const groups = this.query_builder.call().all();
+    if (groups.length === 1 && groups[0].count === 0) return [];
+
     for (const group of groups) {
       for (const key in group)
         if (group[key] === null)
           delete group[key];
     }
     return groups;
-
-    // const filteredAccounts = query.all();
-    //
-    // const counter = {};
-    // accounts.forEach(account => {
-    //   const superKey = keys.map(key => key + '@' + account[key]).join('#');
-    //   if (!counter[superKey]) {
-    //     counter[superKey] = {
-    //       cnt: 0,
-    //       values: keys.map(key => account[key])
-    //     }
-    //   }
-    //   counter[superKey].cnt += 1;
-    // });
-    // let groups = Object.keys(counter)
-    //   .sort((a,b) => {
-    //     return asc ? (counter[a].cnt - counter[b].cnt) : (counter[b].cnt - counter[a].cnt)
-    //   })
-    //   .slice(0, this.limit)
-    //   .map( superKey => {
-    //     let group = keys.reduce((acc, key, i) => {
-    //       acc[key] = counter[superKey].values[i];
-    //       return acc;
-    //     }, {});
-    //     group['count'] = counter[superKey].cnt;
-    //     return group;
-    //   });
   }
-
-  // bindMethods() {
-  //   this.matchesQuery = this.matchesQuery.bind(this);
-  // }
-  //
-  // matchesQuery(account) {
-  //   return Object.entries(this.request.query).every( ([key, value]) => {
-  //     switch (key) {
-  //       case 'sex':
-  //       case 'status':
-  //       case 'city':
-  //       case 'country':
-  //       case 'status':
-  //         return (account[key] == value);
-  //       case 'likes': return (account.likes && account.likes.some(h => h.id == value));
-  //       case 'interests': return (account.interests && account.interests.includes(value));
-  //       case 'joined':
-  //       case 'birth':
-  //         return (value == Utils.timeToYear(account[key]));
-  //     }
-  //     return true;
-  //   });
-  // }
-  //
-  // filterAccounts() {
-  //   return this.data.accounts.filter(this.matchesQuery);
-  // }
 };
