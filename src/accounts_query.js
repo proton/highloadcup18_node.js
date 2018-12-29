@@ -34,7 +34,10 @@ const quiredFieldGt = (key, value, builder) => {
 const quiredFieldNull = (key, value, builder) => {
   const field = 'accounts.' + key.slice(0, -5);
   if (value === '1' ) builder.wheres.push(`${field} IS NULL`);
-  else builder.wheres.push(`${field} IS NOT NULL`);
+  else {
+    builder.selects.add(field);
+    builder.wheres.push(`${field} IS NOT NULL`);
+  }
 };
 const quiredEmailHaveDomain = (_key, value, builder) => {
   const field = 'accounts.' + 'email';
