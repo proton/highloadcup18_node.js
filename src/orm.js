@@ -49,7 +49,9 @@ module.exports = class Orm {
   }
 
   createTables() {
-    this.db.exec(`CREATE TABLE accounts
+    const tables = this.existingTables();
+
+    if (!tables.includes('accounts')) this.db.exec(`CREATE TABLE accounts
     (id INTEGER PRIMARY KEY,
       email text, fname text,
       sname text, status text,
@@ -58,7 +60,7 @@ module.exports = class Orm {
       joined integer, birth integer)
     `);
 
-    this.db.exec(`CREATE TABLE accounts_like
+    if (!tables.includes('accounts_like')) this.db.exec(`CREATE TABLE accounts_like
     (id INTEGER PRIMARY KEY AUTOINCREMENT,
       like_id integer,
       like_ts integer,
@@ -66,7 +68,7 @@ module.exports = class Orm {
       FOREIGN KEY(account_id) REFERENCES accounts(id))
     `);
 
-    this.db.exec(`CREATE TABLE accounts_premium
+    if (!tables.includes('accounts_premium')) this.db.exec(`CREATE TABLE accounts_premium
     (id INTEGER PRIMARY KEY AUTOINCREMENT,
       start integer,
       finish integer,
@@ -74,11 +76,15 @@ module.exports = class Orm {
       FOREIGN KEY(account_id) REFERENCES accounts(id))
     `);
 
-    this.db.exec(`CREATE TABLE accounts_interest
+    if (!tables.includes('accounts_interest')) this.db.exec(`CREATE TABLE accounts_interest
     (id INTEGER PRIMARY KEY AUTOINCREMENT,
       interest text,
       account_id integer,
       FOREIGN KEY(account_id) REFERENCES accounts(id))
     `);
+  }
+
+  existingTables() {
+   return this.db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").pluck().all();
   }
 };

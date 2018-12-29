@@ -8,7 +8,8 @@ const config = {
     extractedDataDir: '/data'
   },
   db: {
-    file_path: 'db.db'
+    filePath: '/db.db',
+    inMemory: false
   },
   web: {
     host: '0.0.0.0',
@@ -16,10 +17,10 @@ const config = {
   }
 };
 
-const db = require('better-sqlite3')(config.db.file_path);
+const db = require('better-sqlite3')(config.db.filePath, { memory: config.db.inMemory });
 const orm = new Orm(db);
 
-const dataLoader = new DataLoader({ config: config.data, orm: orm });
+const dataLoader = new DataLoader({ config: config, orm: orm });
 const data = dataLoader.load();
 
 const webServer = new WebServer({ config: config.web, data: data, orm: orm });

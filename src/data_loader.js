@@ -4,26 +4,31 @@ const Utils = require('./utils.js');
 
 module.exports = class DataLoader {
   constructor({config, orm}) {
-    this.dataConfig = config;
+    this.config = config;
+    this.orm = orm;
+
     this.data = {
       ts: 0
     };
-    this.orm = orm;
 
-    this.load = this.load.bind(this);
+    // this.load = this.load.bind(this);
   }
 
   load() {
     this.loadTimestamp();
-    this.loadData();
+    if(!this.databaseExists()) this.loadData();
     global.gc();
     return this.data;
+  }
+
+  databaseExists() {
+    return fs.existsSync(this.config.db.filePath);
   }
 
   loadData() {
     spawn.execSync(this.unzipCmd());
 
-    const fileNames = fs.readdirSync(this.dataConfig.extractedDataDir)
+    const fileNames = fs.readdirSync(this.config.data.extractedDataDir)
                         .filter(el => /accounts_\d+.json$/.test(el));
     for (const fileName of fileNames) this.loadFile(fileName);
 
@@ -32,14 +37,14 @@ module.exports = class DataLoader {
   }
 
   loadTimestamp() {
-    const filePath = `${this.dataConfig.dataPath}/options.txt`;
+    const filePath = `${this.config.data.dataPath}/options.txt`;
     const content = fs.readFileSync(filePath, 'utf8');
     this.data.ts = Number(content.split("\n")[0]);
   }
 
   loadFile(fileName) {
     Utils.log(`loading file ${fileName}`);
-    const filePath = `${this.dataConfig.extractedDataDir}/${fileName}`;
+    const filePath = `${this.config.data.extractedDataDir}/${fileName}`;
     const content = fs.readFileSync(filePath, 'utf8');
     const parsedContent = JSON.parse(content);
     for (const account of parsedContent.accounts) {
@@ -49,7 +54,7 @@ module.exports = class DataLoader {
   }
 
   unzipCmd() {
-    const archivePath = `${this.dataConfig.dataPath}/data.zip`;
-    return `unzip ${archivePath} -d ${this.dataConfig.extractedDataDir}`;
+    const archivePath = `${this.config.data.dataPath}/data.zip`;
+    return `unzip ${archivePath} -d ${this.config.data.extractedDataDir}`;
   }
 };
