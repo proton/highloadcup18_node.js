@@ -1,11 +1,11 @@
 const fastify = require('fastify')({ logger: false });
 
-const GetAccountsFilterHandler = require('./get_accounts_filter_handler.js');
-const GetAccountsGroupHandler = require('./get_accounts_group_handler.js');
-const GetAccountsRecommendHandler = require('./get_accounts_recommend_handler.js');
-const GetAccountsSuggestHandler = require('./get_accounts_suggest_handler.js');
-const PostAccountsCreateHandler = require('./post_accounts_create_handler.js');
-const PostAccountsUpdateHandler = require('./post_accounts_update_handler.js');
+const GetAccountsFilterHandler = require('./request_handlers/get_accounts_filter_handler.js');
+const GetAccountsGroupHandler = require('./request_handlers/get_accounts_group_handler.js');
+const GetAccountsRecommendHandler = require('./request_handlers/get_accounts_recommend_handler.js');
+const GetAccountsSuggestHandler = require('./request_handlers/get_accounts_suggest_handler.js');
+const PostAccountsCreateHandler = require('./request_handlers/post_accounts_create_handler.js');
+const PostAccountsUpdateHandler = require('./request_handlers/post_accounts_update_handler.js');
 
 module.exports = class WebServer {
   constructor(webConfig, data) {

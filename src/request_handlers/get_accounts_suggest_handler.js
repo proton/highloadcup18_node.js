@@ -1,4 +1,4 @@
-const WebRequestHandler = require('./web_request_handler.js')
+const WebRequestHandler = require('../web_request_handler.js')
 
 const displayedFields = ['id', 'email', 'status', 'fname', 'sname', 'birth', 'premium'];
 

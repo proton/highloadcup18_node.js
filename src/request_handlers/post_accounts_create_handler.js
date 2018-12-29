@@ -1,4 +1,4 @@
-const WebRequestHandler = require('./web_request_handler.js')
+const WebRequestHandler = require('../web_request_handler.js')
 
 module.exports = class PostAccountsCreateHandler extends WebRequestHandler {
   call() {

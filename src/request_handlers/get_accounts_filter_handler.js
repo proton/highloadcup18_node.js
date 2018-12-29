@@ -1,5 +1,5 @@
-const WebRequestHandler = require('./web_request_handler.js');
-const Utils = require('./utils.js');
+const WebRequestHandler = require('../web_request_handler.js');
+const Utils = require('../utils.js');
 
 const dispayedFieldsMapping = {
   'sex_eq': 'sex',
