@@ -22,6 +22,7 @@ module.exports = class Orm {
     }
     else account.premium_start = account.premium_finish = null;
     Orm.fillEmptyAccountFields(account);
+
     this.insertAccountQuery.run(account);
 
     if(account.interests) {
