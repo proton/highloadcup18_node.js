@@ -47,6 +47,14 @@ module.exports = class Orm {
       delete updates.interests;
     }
 
+    if(updates.likes) {
+      this.db.exec(`DELETE FROM account_likes WHERE account_id = ${account.id}`);
+      const sql = 'INSERT INTO account_likes (account_id, like_id, like_ts) VALUES ' +
+        updates.likes.map(like => `(${account.id}, ${like.id}, ${like.ts})`).join(', ');
+      this.db.exec(sql);
+      delete updates.likes;
+    }
+
     if ( updates.hasOwnProperty('premium')) {
       if (updates.premium) {
         updates.premium_start = updates.premium.start;
@@ -61,6 +69,12 @@ module.exports = class Orm {
 
     const sql = 'UPDATE accounts SET ' + keys.map(k => `${k} = @${k}`).join(', ') + ` WHERE id = ${account.id}`;
     this.db.prepare(sql).run(updates);
+  }
+
+  addLikes(likes) {
+    const sql = 'INSERT INTO account_likes (account_id, like_id, like_ts) VALUES ' +
+      likes.map(like => `(${like.liker}, ${like.likee}, ${like.ts})`).join(', ');
+    this.db.exec(sql);
   }
 
   findAccount(id) {
