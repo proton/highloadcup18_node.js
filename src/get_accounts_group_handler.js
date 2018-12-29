@@ -1,4 +1,5 @@
-const WebRequestHandler = require('./web_request_handler.js')
+const WebRequestHandler = require('./web_request_handler.js');
+const Utils = require('./utils.js');
 
 // const allowedFields = new Set(['sex', 'status', 'country', 'city', 'interests']);
 
@@ -59,7 +60,7 @@ module.exports = class GetAccountGroupHandler extends WebRequestHandler {
         case 'interests': return (account.interests && account.interests.includes(value));
         case 'joined':
         case 'birth':
-          return (value == this.timeToYear(account[key]));
+          return (value == Utils.timeToYear(account[key]));
       }
       return true;
     });

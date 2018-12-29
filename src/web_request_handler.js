@@ -11,13 +11,9 @@ module.exports = class WebRequestHandler {
 
   bindMethods() { }
 
-  timeToYear(ts) {
-    return (new Date(ts * 1000)).getFullYear();
-  }
-
   hasPremium(account) {
     return account.premium &&
            account.premium.start <= this.data.ts &&
            account.premium.finish >= this.data.ts;
   }
-}
+};

@@ -30,8 +30,8 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
   compareAccounts(b, a) {
     if(this.hasPremium(a) != this.hasPremium(b)) return this.hasPremium(a) ? 1 : -1
     if(a.status != b.status) return statuses[a.status] - statuses[b.status];
-    const aCommonInterests = this.commonInterests(a);
-    const bCommonInterests = this.commonInterests(b);
+    const aCommonInterests = this.commonInterestsCount(a);
+    const bCommonInterests = this.commonInterestsCount(b);
     if(aCommonInterests != bCommonInterests) return aCommonInterests - bCommonInterests;
     const aAgeDiff = Math.abs(a.birth - this.myAccount.birth);
     const bAgeDiff = Math.abs(b.birth - this.myAccount.birth);
@@ -39,17 +39,17 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
     return b.id - a.id;
   }
 
-  commonInterests(account) {
+  commonInterestsCount(account) {
     if(!account.interests) return 0;
     if(!this.myInterestsSet) this.myInterestsSet = new Set(this.myAccount.interests);
     return account.interests.reduce((sum, obj) => this.myInterestsSet.has(obj) ? sum + 1 : sum, 0);
   }
 
   matchesQuery(account) {
-    if (this.myAccount.sex == account.sex) return false;
-    if (this.request.query.city && this.request.query.city != account.city) return false;
-    if (this.request.query.country && this.request.query.country != account.country) return false;
-    if (commonInterests(account) == 0) return false;
+    if(this.myAccount.sex == account.sex) return false;
+    if(this.request.query.city && this.request.query.city != account.city) return false;
+    if(this.request.query.country && this.request.query.country != account.country) return false;
+    if(this.commonInterestsCount(account) == 0) return false;
     return true;
   }
 

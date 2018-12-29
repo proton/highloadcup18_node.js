@@ -10,7 +10,7 @@ const config = {
     host: '0.0.0.0',
     port: 80
   }
-}
+};
 
 const dataLoader = new DataLoader(config.data);
 const data = dataLoader.load();

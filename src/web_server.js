@@ -22,17 +22,22 @@ module.exports = class WebServer {
     fastify.post('/accounts/:user_id/', this.callHandler(PostAccountsUpdateHandler));
 
     try {
-      fastify.listen(this.webConfig.port, this.webConfig.host)
+      fastify.listen(this.webConfig.port, this.webConfig.host);
     } catch (err) {
-      fastify.log.error(err)
-      process.exit(1)
+      fastify.log.error(err);
+      process.exit(1);
     }
   }
 
   callHandler(klass) {
     return async (request, reply) => {
-      const handler = new klass(request, reply, this.data)
-      return handler.call()
+      const handler = new klass(request, reply, this.data);
+      try {
+        return handler.call()
+      } catch (err) {
+        console.log(['Error', request.raw.url]);
+        console.log(err);
+      }
     }
   }
-}
+};

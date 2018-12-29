@@ -1,4 +1,5 @@
-const WebRequestHandler = require('./web_request_handler.js')
+const WebRequestHandler = require('./web_request_handler.js');
+const Utils = require('./utils.js');
 
 const dispayedFieldsMapping = {
   'sex_eq': 'sex',
@@ -30,7 +31,7 @@ const dispayedFieldsMapping = {
   'premium_null': 'premium',
   'query_id': '',
   'limit': ''
-}
+};
 
 module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
   call() {
@@ -87,7 +88,7 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
         case 'city_null': return (value == '1' ? !account.city : account.city);
         case 'birth_lt': return (value - account.birth > 0);
         case 'birth_gt': return (value - account.birth < 0);
-        case 'birth_year': return (value == this.timeToYear(account.birth));
+        case 'birth_year': return (value == Utils.timeToYear(account.birth));
         case 'interests_contains': return (account.interests && value.split(',').every(v => account.interests.includes(v)));
         case 'interests_any': return (account.interests && value.split(',').some(v => account.interests.includes(v)));
         case 'likes_contains': return (account.likes && value.split(',').every(v => account.likes.some(h => h.id == v)));
