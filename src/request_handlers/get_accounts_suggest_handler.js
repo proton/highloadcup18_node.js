@@ -59,6 +59,7 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
     this.myAccount.likes.array.forEach(like => {
       // ? вообще похоже придётся по-старинке, на этапе загрузки
     });
+    return [];
   }
 
   likedByMe(account) {

@@ -54,6 +54,7 @@ module.exports = class DataLoader {
   }
 
   addAccount(account) {
+    if(!account.likes) account.likes = [];
     this.data.accounts[account.id] = account;
   }
 

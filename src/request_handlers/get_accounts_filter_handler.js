@@ -79,7 +79,7 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
         case 'sname_eq': return (account.sname == value);
         case 'sname_starts': return (account.sname && account.sname.startsWith(value));
         case 'sname_null': return (value == '1' ? !account.sname : account.sname);
-        case 'phone_code': return (account.phone && account.sname.includes(`(${value})`));
+        case 'phone_code': return (account.phone && account.phone.includes(`(${value})`));
         case 'phone_null': return (value == '1' ? !account.phone : account.phone);
         case 'country_eq': return (account.country == value);
         case 'country_null': return (value == '1' ? !account.country : account.country);
