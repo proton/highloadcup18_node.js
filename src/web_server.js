@@ -16,11 +16,11 @@ module.exports = class WebServer {
   
   start() {
     fastify.get('/accounts/filter/', this.callHandler(GetAccountsFilterHandler));
-    fastify.get('/accounts/group/', this.callHandler(GetAccountsGroupHandler));
-    fastify.get('/accounts/:user_id/recommend/', this.callHandler(GetAccountsRecommendHandler));
-    fastify.get('/accounts/:user_id/suggest/', this.callHandler(GetAccountsSuggestHandler));
-    fastify.post('/accounts/new/', this.callHandler(PostAccountsCreateHandler));
-    fastify.post('/accounts/:user_id/', this.callHandler(PostAccountsUpdateHandler));
+    // fastify.get('/accounts/group/', this.callHandler(GetAccountsGroupHandler));
+    // fastify.get('/accounts/:user_id/recommend/', this.callHandler(GetAccountsRecommendHandler));
+    // fastify.get('/accounts/:user_id/suggest/', this.callHandler(GetAccountsSuggestHandler));
+    // fastify.post('/accounts/new/', this.callHandler(PostAccountsCreateHandler));
+    // fastify.post('/accounts/:user_id/', this.callHandler(PostAccountsUpdateHandler));
 
     try {
       fastify.listen(this.config.port, this.config.host);

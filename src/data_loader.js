@@ -10,8 +10,6 @@ module.exports = class DataLoader {
     this.data = {
       ts: 0
     };
-
-    // this.load = this.load.bind(this);
   }
 
   load() {
