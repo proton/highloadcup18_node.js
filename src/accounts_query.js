@@ -55,13 +55,13 @@ const quiredPremiumNull = (_key, value, builder) => {
   builder.selects.add('premium_start');
   builder.selects.add('premium_finish');
   if (value === '1' ) builder.wheres.push(`premium_start IS NULL AND premium_finish IS NULL`);
-  else builder.wheres.push(`premium_start IS NOT NULL OR premium_finish IS NOT NULL`);
+  else builder.wheres.push(`(premium_start IS NOT NULL OR premium_finish IS NOT NULL)`);
 };
 const quiredPremiumNow = (_key, value, builder, current_ts) => {
   builder.selects.add('premium_start');
   builder.selects.add('premium_finish');
   if (value === '1' ) builder.wheres.push(`premium_start <= ${current_ts} AND premium_finish >= ${current_ts}`);
-  else builder.wheres.push(`premium_start >= ${current_ts} OR premium_finish < ${current_ts}`);
+  else builder.wheres.push(`(premium_start >= ${current_ts} OR premium_finish < ${current_ts})`);
 };
 const quiredFieldYear = (key, value, builder) => {
   const field = 'accounts.' + key;
