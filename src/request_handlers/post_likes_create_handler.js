@@ -5,7 +5,7 @@ module.exports = class PostLikesCreateHandler extends WebRequestHandler {
     const likes = this.request.body.likes;
 
     // if(!likes || !likes.length)
-    //   return this.reply.code(400).type('text/html').send('Error');
+    //   return this.replyError();
 
     if (likes.length) this.orm.addLikes(likes);
     this.reply.code(202).type('text/plain').send('{}');

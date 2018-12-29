@@ -9,8 +9,7 @@ module.exports = class Orm {
   }
 
   static fillEmptyAccountFields(account) {
-    const attrs = Utils.accountAttrs;
-    for (const attr of attrs)
+    for (const attr of Utils.accountAttrs)
       if(account[attr] === undefined)
         account[attr] = null;
   }

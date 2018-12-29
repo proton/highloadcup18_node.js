@@ -4,8 +4,8 @@ const AccountsQuery = require('../accounts_query.js');
 
 module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
   call() {
-    if(isNaN(this.limit))
-      return this.reply.code(400).type('text/html').send('Error');
+    if (isNaN(this.limit) || this.limit < 1)
+      return this.replyError();
       
     const accounts = this.filterAccounts();
     return { accounts: accounts.map(this.asJson) };

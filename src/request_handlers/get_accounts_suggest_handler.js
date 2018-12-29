@@ -7,10 +7,10 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
     const user_id = Number(this.request.params.user_id);
     this.myAccount = this.orm.findAccount(user_id);
 
-    if(!this.myAccount)
-      return this.reply.code(404).type('text/html').send('Not Found');
-    if(isNaN(this.limit))
-      return this.reply.code(400).type('text/html').send('Error');
+    if (!this.myAccount)
+      return this.replyNotFound();
+    if (isNaN(this.limit) || this.limit < 1)
+      return this.replyError();
 
     let accounts = this.filterAccounts();
     return { accounts: accounts.map(this.asJson) };

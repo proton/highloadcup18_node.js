@@ -5,8 +5,8 @@ module.exports = class PostAccountsUpdateHandler extends WebRequestHandler {
     const user_id = Number(this.request.params.user_id);
     this.myAccount = this.orm.findAccount(user_id);
 
-    if(!this.myAccount)
-      return this.reply.code(404).type('text/html').send('Not Found');
+    if (!this.myAccount)
+      return this.replyNotFound();
 
     const updates = this.request.body;
     this.orm.updateAccount(this.myAccount, updates);

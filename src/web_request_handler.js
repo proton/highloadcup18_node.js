@@ -11,4 +11,12 @@ module.exports = class WebRequestHandler {
   }
 
   bindMethods() { }
+
+  replyNotFound() {
+    this.reply.code(404).type('text/html').send('Not Found');
+  }
+
+  replyError() {
+    this.reply.code(400).type('text/html').send('Error');
+  }
 };

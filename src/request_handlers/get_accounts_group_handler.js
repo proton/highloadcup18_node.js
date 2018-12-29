@@ -1,6 +1,7 @@
 const WebRequestHandler = require('../web_request_handler.js');
 const QueryBuilder = require('../query_builder.js');
 const AccountsQuery = require('../accounts_query.js');
+const Utils = require('../utils.js');
 
 module.exports = class GetAccountGroupHandler extends WebRequestHandler {
   constructor(...args) {
@@ -9,11 +10,11 @@ module.exports = class GetAccountGroupHandler extends WebRequestHandler {
   }
 
   call() {
-    if(isNaN(this.limit))
-      return this.reply.code(400).type('text/html').send('Error');
+    if (isNaN(this.limit) || this.limit < 1)
+      return this.replyError();
     const order = this.request.query.order;
     if(order !== '1' && order !== '-1')
-      return this.reply.code(400).type('text/html').send('Error');
+      return this.replyError();
     
     const accounts_query = new AccountsQuery(this.query_builder, this.request.query, this.data.ts);
     accounts_query.call();
@@ -26,6 +27,7 @@ module.exports = class GetAccountGroupHandler extends WebRequestHandler {
   countGroups() {
     const order = (this.request.query.order === '1') ? 'ASC' : 'DESC';
     const keys = this.request.query.keys.split(',');
+    if (keys.some(key => !Utils.accountAttrsExtended.has(key))) throw 'bad_data';
 
     this.query_builder.selects.add('COUNT(*) AS `count`');
     this.query_builder.orders.push(`COUNT(*) ${order}`);

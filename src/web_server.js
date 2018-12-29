@@ -38,7 +38,7 @@ module.exports = class WebServer {
       try {
         return handler.call()
       } catch (err) {
-        if (err !== 'wrong field') console.log(['Error', request.raw.url, err]);
+        if (err !== 'bad_data') console.log(['Error', request.raw.url, err]);
         return reply.code(400).type('text/html').send('Error');
       }
     }

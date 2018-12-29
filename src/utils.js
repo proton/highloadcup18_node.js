@@ -42,4 +42,7 @@ module.exports = class Utils {
   };
 };
 
-module.exports.accountAttrs = ['id', 'email', 'fname', 'sname', 'status', 'country', 'city', 'phone', 'sex', 'joined', 'birth'];
+module.exports.accountAttrs =
+  new Set(['id', 'email', 'fname', 'sname', 'status', 'country', 'city', 'phone', 'sex', 'joined', 'birth']);
+module.exports.accountAttrsExtended =
+  new Set(['id', 'email', 'fname', 'sname', 'status', 'country', 'city', 'phone', 'sex', 'joined', 'birth', 'likes', 'interests']);

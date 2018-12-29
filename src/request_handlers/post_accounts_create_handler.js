@@ -5,9 +5,9 @@ module.exports = class PostAccountsCreateHandler extends WebRequestHandler {
     const account = this.request.body;
 
     if(!account.id)
-      return this.reply.code(400).type('text/html').send('Error');
+      return this.replyError();
     if(this.orm.isAccountExists(account.id))
-      return this.reply.code(400).type('text/html').send('Error');
+      return this.replyError();
 
     this.orm.addAccount(account);
     this.reply.code(201).type('text/plain').send('{}');
