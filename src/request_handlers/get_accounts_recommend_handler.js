@@ -64,10 +64,6 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
     builder.selects.add('accounts.premium_start');
     builder.selects.add('accounts.premium_finish');
 
-    // let r = builder.call().all();
-    // console.log(builder.call());
-    // console.log(r);
-
     return builder.call().all();
   }
 };
