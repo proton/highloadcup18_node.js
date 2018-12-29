@@ -24,7 +24,7 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
 
   asJson(account) {
     if (account.hasOwnProperty('premium_start')) {
-      account.premium = {
+      if (account.premium_start) account.premium = {
         start: account.premium_start,
         finish: account.premium_finish
       };
