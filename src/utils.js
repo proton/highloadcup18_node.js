@@ -9,7 +9,6 @@ module.exports = class Utils {
       from: +Date.UTC(year) / 1000 | 0,
       to: +Date.UTC(year + 1) / 1000 | 0
     }
-    // return (new Date(ts * 1000)).getFullYear();
   }
 
   static log(text) {

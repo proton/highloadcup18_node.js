@@ -147,7 +147,7 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
     const builder = new QueryBuilder(this.orm);
     builder.selects.add('accounts.id');
     builder.selects.add('accounts.email');
-    builder.order = 'accounts.id DESC';
+    builder.orders.push('accounts.id DESC');
     builder.limit = this.limit;
     builder.bindings = Object.assign(builder.bindings, this.request.query);
 
