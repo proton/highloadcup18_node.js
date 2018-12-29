@@ -2,21 +2,7 @@ const WebRequestHandler = require('../web_request_handler.js');
 const QueryBuilder = require('../query_builder.js');
 const AccountsQuery = require('../accounts_query.js');
 
-// const displayedFields = ['id', 'email', 'status', 'fname', 'sname', 'birth', 'premium'];
-
-const statuses = {
-  'свободны': 3,
-  'всё сложно': 2,
-  'занятые': 1
-};
-
 module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
-  // constructor(...args) {
-  //   super(...args);
-  //   const user_id = Number(this.request.params.user_id);
-  //   this.myAccount = this.data.accounts[user_id];
-  // }
-
   call() {
     const user_id = Number(this.request.params.user_id);
     this.myAccount = this.orm.findAccount(user_id);
@@ -51,40 +37,34 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
     //   return acc;
     // }, {})
   }
-
-  // compareAccounts(b, a) {
-  //   if(this.hasPremium(a) != this.hasPremium(b)) return this.hasPremium(a) ? 1 : -1
-  //   if(a.status != b.status) return statuses[a.status] - statuses[b.status];
-  //   const aCommonInterests = this.commonInterestsCount(a);
-  //   const bCommonInterests = this.commonInterestsCount(b);
-  //   if(aCommonInterests != bCommonInterests) return aCommonInterests - bCommonInterests;
-  //   const aAgeDiff = Math.abs(a.birth - this.myAccount.birth);
-  //   const bAgeDiff = Math.abs(b.birth - this.myAccount.birth);
-  //   if(aAgeDiff != bAgeDiff) return bAgeDiff - aAgeDiff;
-  //   return b.id - a.id;
-  // }
-  //
-  // commonInterestsCount(account) {
-  //   if(!account.interests) return 0;
-  //   if(!this.myInterestsSet) this.myInterestsSet = new Set(this.myAccount.interests);
-  //   return account.interests.reduce((sum, obj) => this.myInterestsSet.has(obj) ? sum + 1 : sum, 0);
-  // }
-  //
-  // matchesQuery(account) {
-  //   if(this.myAccount.sex == account.sex) return false;
-  //   if(this.request.c.city && this.request.query.city != account.city) return false;
-  //   if(this.request.query.country && this.request.query.country != account.country) return false;
-  //   if(this.commonInterestsCount(account) == 0) return false;
-  //   return true;
-  // }
   
   filterAccounts() {
     const builder = new QueryBuilder(this.orm);
+    const current_ts = this.data.ts;
 
-    const accounts_query = new AccountsQuery(builder, this.request.query, this.data.ts);
+    const accounts_query = new AccountsQuery(builder, this.request.query, current_ts);
     accounts_query.call();
+    builder.bindings.my_sex = this.myAccount.sex;
+    builder.wheres.push('accounts.sex != @my_sex');
+    builder.wheres.push(`accounts.id IN (SELECT DISTINCT account_id FROM account_interests WHERE interest IN (SELECT interest FROM account_interests WHERE account_id = ${this.myAccount.id}))`);
 
-    builder.selects.add('accounts.*');
+    builder.orders.push(`(premium_start <= ${current_ts} AND premium_finish >= ${current_ts}) DESC`);
+    builder.orders.push("CASE accounts.status WHEN 'свободны' THEN 3 WHEN 'всё сложно' THEN 2 WHEN 'занятые' THEN 1 END");
+    // TODO: order by commonInterestsCount desc
+    builder.orders.push(`ABS(accounts.birth - ${this.myAccount.birth}) ASC`);
+
+    builder.selects.add('accounts.id');
+    builder.selects.add('accounts.email');
+    builder.selects.add('accounts.status');
+    builder.selects.add('accounts.fname');
+    builder.selects.add('accounts.sname');
+    builder.selects.add('accounts.birth');
+    builder.selects.add('accounts.premium_start');
+    builder.selects.add('accounts.premium_finish');
+
+    // let r = builder.call().all();
+    // console.log(builder.call());
+    // console.log(r);
 
     return builder.call().all();
   }
