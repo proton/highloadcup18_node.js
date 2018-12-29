@@ -11,10 +11,4 @@ module.exports = class WebRequestHandler {
   }
 
   bindMethods() { }
-
-  hasPremium(account) {
-    return account.premium &&
-           account.premium.start <= this.data.ts &&
-           account.premium.finish >= this.data.ts;
-  }
 };

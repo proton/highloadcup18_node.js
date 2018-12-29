@@ -16,6 +16,11 @@ module.exports = class Orm {
   }
 
   addAccount(account) {
+    if (account.premium) {
+      account.premium_start = account.premium.start;
+      account.premium_finish = account.premium.finish;
+    }
+    else account.premium_start = account.premium_finish = null;
     Orm.fillEmptyAccountFields(account);
     this.insertAccountQuery.run(account);
 
@@ -30,12 +35,6 @@ module.exports = class Orm {
         account.likes.map(like => `(${account.id}, ${like.id}, ${like.ts})`).join(', ');
       this.db.exec(sql);
     }
-
-    if(account.premium) {
-      const sql = 'INSERT INTO accounts_premium (account_id, start, finish) VALUES ' +
-        `(${account.id}, ${account.premium.start}, ${account.premium.finish})`;
-      this.db.exec(sql);
-    }
   }
 
   accountsCount() {
@@ -44,8 +43,8 @@ module.exports = class Orm {
 
   prepareStatements() {
     this.insertAccountQuery = this.db.prepare(`INSERT INTO accounts
-      (id, email, fname, sname, status, country, city, phone, sex, joined, birth)
-      VALUES (@id, @email, @fname, @sname, @status, @country, @city, @phone, @sex, @joined, @birth)`);
+      (id, email, fname, sname, status, country, city, phone, sex, joined, birth, premium_start, premium_finish)
+      VALUES (@id, @email, @fname, @sname, @status, @country, @city, @phone, @sex, @joined, @birth, @premium_start, @premium_finish)`);
   }
 
   createTables() {
@@ -57,21 +56,15 @@ module.exports = class Orm {
       sname text, status text,
       country text, city text,
       phone text, sex text,
-      joined integer, birth integer)
+      joined integer, birth integer,
+      premium_start integer,
+      premium_finish integer)
     `);
 
     if (!tables.includes('accounts_like')) this.db.exec(`CREATE TABLE accounts_like
     (id INTEGER PRIMARY KEY AUTOINCREMENT,
       like_id integer,
       like_ts integer,
-      account_id integer,
-      FOREIGN KEY(account_id) REFERENCES accounts(id))
-    `);
-
-    if (!tables.includes('accounts_premium')) this.db.exec(`CREATE TABLE accounts_premium
-    (id INTEGER PRIMARY KEY AUTOINCREMENT,
-      start integer,
-      finish integer,
       account_id integer,
       FOREIGN KEY(account_id) REFERENCES accounts(id))
     `);
