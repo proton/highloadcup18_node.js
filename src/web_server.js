@@ -17,7 +17,7 @@ module.exports = class WebServer {
   start() {
     fastify.get('/accounts/filter/', this.callHandler(GetAccountsFilterHandler));
     fastify.get('/accounts/group/', this.callHandler(GetAccountsGroupHandler));
-    // fastify.get('/accounts/:user_id/recommend/', this.callHandler(GetAccountsRecommendHandler));
+    fastify.get('/accounts/:user_id/recommend/', this.callHandler(GetAccountsRecommendHandler));
     // fastify.get('/accounts/:user_id/suggest/', this.callHandler(GetAccountsSuggestHandler));
     // fastify.post('/accounts/new/', this.callHandler(PostAccountsCreateHandler));
     // fastify.post('/accounts/:user_id/', this.callHandler(PostAccountsUpdateHandler));
@@ -36,8 +36,8 @@ module.exports = class WebServer {
       try {
         return handler.call()
       } catch (err) {
-        console.log(['Error', request.raw.url]);
-        console.log(err);
+        if (err !== 'wrong field') console.log(['Error', request.raw.url, err]);
+        return reply.code(400).type('text/html').send('Error');
       }
     }
   }

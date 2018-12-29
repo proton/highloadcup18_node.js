@@ -37,6 +37,10 @@ module.exports = class Orm {
     }
   }
 
+  findAccount(id) {
+    return this.selectAccountQuery.get(id);
+  }
+
   accountsCount() {
     return this.db.prepare('SELECT COUNT(*) as cnt FROM accounts').get().cnt;
   }
@@ -45,6 +49,7 @@ module.exports = class Orm {
     this.insertAccountQuery = this.db.prepare(`INSERT INTO accounts
       (id, email, fname, sname, status, country, city, phone, sex, joined, birth, premium_start, premium_finish)
       VALUES (@id, @email, @fname, @sname, @status, @country, @city, @phone, @sex, @joined, @birth, @premium_start, @premium_finish)`);
+    this.selectAccountQuery = this.db.prepare('SELECT * FROM accounts WHERE id = ?');
   }
 
   createTables() {
