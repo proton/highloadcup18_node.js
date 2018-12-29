@@ -6,8 +6,6 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
   call() {
     if(isNaN(this.limit))
       return this.reply.code(400).type('text/html').send('Error');
-    // if(!Object.keys(this.request.query).every(key => AccountsQuery.quiredFieldsMapping(key)))
-    //   return this.reply.code(400).type('text/html').send('Error');
       
     const accounts = this.filterAccounts();
     return { accounts: accounts.map(this.asJson) };
@@ -18,14 +16,19 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
   }
 
   asJson(account) {
-    if (account.hasOwnProperty('premium_start')) {
-      if (account.premium_start) account.premium = {
+    if (account.premium_start) {
+      account.premium = {
         start: account.premium_start,
         finish: account.premium_finish
       };
       delete account.premium_start;
       delete account.premium_finish;
     }
+
+    for (const key in account)
+      if (account[key] === null)
+        delete account[key];
+
     return account;
   }
 

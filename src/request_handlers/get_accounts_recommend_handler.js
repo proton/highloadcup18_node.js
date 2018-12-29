@@ -17,25 +17,24 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
   }
 
   bindMethods() {
-    // this.compareAccounts = this.compareAccounts.bind(this);
     this.asJson = this.asJson.bind(this);
-    // this.matchesQuery = this.matchesQuery.bind(this);
   }
 
   asJson(account) {
-    if (account.hasOwnProperty('premium_start')) {
-      if (account.premium_start) account.premium = {
+    if (account.premium_start) {
+      account.premium = {
         start: account.premium_start,
         finish: account.premium_finish
       };
       delete account.premium_start;
       delete account.premium_finish;
     }
+
+    for (const key in account)
+      if (account[key] === null)
+        delete account[key];
+
     return account;
-    // return displayedFields.reduce((acc, key) => {
-    //   acc[key] = account[key];
-    //   return acc;
-    // }, {})
   }
   
   filterAccounts() {
@@ -46,12 +45,15 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
     accounts_query.call();
     builder.bindings.my_sex = this.myAccount.sex;
     builder.wheres.push('accounts.sex != @my_sex');
-    builder.wheres.push(`accounts.id IN (SELECT DISTINCT account_id FROM account_interests WHERE interest IN (SELECT interest FROM account_interests WHERE account_id = ${this.myAccount.id}))`);
 
     builder.orders.push(`(premium_start <= ${current_ts} AND premium_finish >= ${current_ts}) DESC`);
-    builder.orders.push("CASE accounts.status WHEN 'свободны' THEN 3 WHEN 'всё сложно' THEN 2 WHEN 'занятые' THEN 1 END");
-    // TODO: order by commonInterestsCount desc
+    builder.orders.push("CASE accounts.status WHEN 'свободны' THEN 3 WHEN 'всё сложно' THEN 2 WHEN 'занятые' THEN 1 END DESC");
+    builder.orders.push('COUNT(account_interests.interest) DESC');
     builder.orders.push(`ABS(accounts.birth - ${this.myAccount.birth}) ASC`);
+
+    builder.join_interests = true;
+    builder.groups.push('accounts.id');
+    builder.wheres.push(`account_interests.interest IN (SELECT interest FROM account_interests WHERE account_id = ${this.myAccount.id})`);
 
     builder.selects.add('accounts.id');
     builder.selects.add('accounts.email');
