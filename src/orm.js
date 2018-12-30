@@ -31,7 +31,7 @@ module.exports = class Orm {
     }
 
     if(account.likes) {
-      const sql = 'INSERT INTO account_likes (account_id, like_id, like_ts) VALUES ' +
+      const sql = 'INSERT INTO account_likes (account_id, like_id, ts) VALUES ' +
         account.likes.map(like => `(${account.id}, ${like.id}, ${like.ts})`).join(', ');
       this.db.exec(sql);
     }
@@ -48,7 +48,7 @@ module.exports = class Orm {
 
     if(updates.likes) {
       this.db.exec(`DELETE FROM account_likes WHERE account_id = ${account.id}`);
-      const sql = 'INSERT INTO account_likes (account_id, like_id, like_ts) VALUES ' +
+      const sql = 'INSERT INTO account_likes (account_id, like_id, ts) VALUES ' +
         updates.likes.map(like => `(${account.id}, ${like.id}, ${like.ts})`).join(', ');
       this.db.exec(sql);
       delete updates.likes;
@@ -80,7 +80,7 @@ module.exports = class Orm {
   }
 
   addLikes(likes) {
-    const sql = 'INSERT INTO account_likes (account_id, like_id, like_ts) VALUES ' +
+    const sql = 'INSERT INTO account_likes (account_id, like_id, ts) VALUES ' +
       likes.map(like => `(${like.liker}, ${like.likee}, ${like.ts})`).join(', ');
     this.db.exec(sql);
   }
@@ -122,7 +122,7 @@ module.exports = class Orm {
     if (!tables.includes('account_likes')) this.db.exec(`CREATE TABLE account_likes
     (id INTEGER PRIMARY KEY AUTOINCREMENT,
       like_id integer,
-      like_ts integer,
+      ts integer,
       account_id integer,
       FOREIGN KEY(account_id) REFERENCES accounts(id))
     `);

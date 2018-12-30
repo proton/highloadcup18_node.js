@@ -38,36 +38,29 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
   }
 
   filterAccounts() {
-    const builder = new QueryBuilder(this.orm);
     const current_ts = this.data.ts;
 
+    const builder0 = new QueryBuilder(this.orm);
+
+    builder0.from = 'account_likes AS simular_account_likes';
+    builder0.joins.push(`INNER JOIN account_likes AS my_likes ON simular_account_likes.like_id = my_likes.like_id AND my_likes.account_id = ${this.myAccount.id}`);
+
+    builder0.selects.add('simular_account_likes.account_id, simular_account_likes.like_id, ABS(AVG(my_likes.ts) - AVG(simular_account_likes.ts)) AS likes_diff');
+    builder0.groups.push('simular_account_likes.account_id');
+    builder0.groups.push('simular_account_likes.like_id');
+
+    const builder = new QueryBuilder(this.orm);
     const accounts_query = new AccountsQuery(builder, this.request.query, current_ts);
     accounts_query.call();
 
-    builder.wheres.push(`accounts.id NOT IN (SELECT like_id FROM account_likes WHERE account_id = ${this.myAccount.id})`);
+    builder.from = `(${builder0.sql()}) AS simular_likes`;
+    // builder.selects.add('simular_likes.like_id');
+    // builder.selects.add('SUM(1 / simular_likes.likes_diff) AS simularity');
+    builder.groups.push('simular_likes.like_id');
+    builder.orders.push('SUM(1 / simular_likes.likes_diff) DESC');
+    builder.orders.push('simular_likes.like_id DESC');
 
-    // тут по сути accounts.* join дата_моего_лайка join дата не_моего_лайка
-
-    // builder.orders.push('simularity DESC');
-    // builder.orders.push('account_likes.like_id DESC');
-
-    // Теперь мы ищем, кого лайкают пользователи того же пола с похожими "симпатиями" и предлагаем тех, кого они недавно лайкали сами.
-
-// Похожесть симпатий определим как функцию: similarity = f (me, account), которая вычисляется однозначно как сумма из дробей 1 / abs(my_like['ts'] - like['ts']), где my_like и like - это симпатии к одному и тому же пользователю. Если общих лайков нет, то стоит считать пользователей абсолютно непохожими с similarity = 0. Если у одного аккаунта есть несколько лайков на одного и того же пользователя с разными датами, то в формуле используется среднее арифметическое их дат.
-
-// В ответе возвращается список тех, кого ещё не лайкал пользователь с указанным id, но кого лайкали пользователи с самыми похожими симпатиями. Сортировка по убыванию похожести, а между лайками одного такого пользователя - по убыванию id лайка.
-
-    // builder.bindings.my_sex = this.myAccount.sex;
-    // builder.wheres.push('accounts.sex != @my_sex');
-    //
-    // builder.orders.push(`(premium_start <= ${current_ts} AND premium_finish >= ${current_ts}) DESC`);
-    // builder.orders.push("CASE accounts.status WHEN 'свободны' THEN 3 WHEN 'всё сложно' THEN 2 WHEN 'занятые' THEN 1 END DESC");
-    // builder.orders.push('COUNT(account_interests.interest) DESC');
-    // builder.orders.push(`ABS(accounts.birth - ${this.myAccount.birth}) ASC`);
-    //
-    // builder.join_interests = true;
-    // builder.groups.push('accounts.id');
-    // builder.wheres.push(`account_interests.interest IN (SELECT interest FROM account_interests WHERE account_id = ${this.myAccount.id})`);
+    builder.joins.push(`INNER JOIN accounts ON accounts.id = simular_likes.like_id`);
 
     builder.selects.add('accounts.id');
     builder.selects.add('accounts.email');
@@ -77,6 +70,12 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
     builder.selects.add('accounts.birth');
     builder.selects.add('accounts.premium_start');
     builder.selects.add('accounts.premium_finish');
+
+
+    // let q = builder.call();
+    // console.log(builder.sql());
+    // let r = q.all();
+    // console.log(r);
 
     return builder.call().all();
   }
