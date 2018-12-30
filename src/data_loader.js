@@ -33,6 +33,7 @@ module.exports = class DataLoader {
     const accountsCount = this.orm.accountsCount();
     Utils.log(`loaded ${accountsCount} accounts`);
     this.orm.createIndexes();
+    Utils.log(`created indexes`);
   }
 
   loadTimestamp() {
