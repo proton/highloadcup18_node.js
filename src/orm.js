@@ -70,6 +70,15 @@ module.exports = class Orm {
     this.db.prepare(sql).run(updates);
   }
 
+  validateFields(data) {
+    if (data.email && !data.email.includes('@')) return false;
+    if (data.birth && isNaN(data.birth)) return false;
+    if (data.joined && isNaN(data.joined)) return false;
+    if (data.premium && typeof data.premium !== 'object') return false;
+    if (data.sex && data.sex !== 'f' && data.sex !== 'm') return false;
+    return true;
+  }
+
   addLikes(likes) {
     const sql = 'INSERT INTO account_likes (account_id, like_id, like_ts) VALUES ' +
       likes.map(like => `(${like.liker}, ${like.likee}, ${like.ts})`).join(', ');

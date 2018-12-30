@@ -8,6 +8,8 @@ module.exports = class PostAccountsCreateHandler extends WebRequestHandler {
       return this.replyError();
     if(this.orm.isAccountExists(account.id))
       return this.replyError();
+    if (!this.orm.validateFields(account))
+      return this.replyError();
 
     this.orm.addAccount(account);
     this.reply.code(201).type('text/plain').send('{}');

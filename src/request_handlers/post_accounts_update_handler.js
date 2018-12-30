@@ -9,6 +9,8 @@ module.exports = class PostAccountsUpdateHandler extends WebRequestHandler {
       return this.replyNotFound();
 
     const updates = this.request.body;
+    if (!this.orm.validateFields(updates))
+      return this.replyError();
     this.orm.updateAccount(this.myAccount, updates);
 
     this.reply.code(202).type('text/plain').send('{}');
