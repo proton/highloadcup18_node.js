@@ -10,7 +10,7 @@ module.exports = class GetAccountGroupHandler extends WebRequestHandler {
   }
 
   call() {
-    if (isNaN(this.limit) || this.limit < 1)
+    if (isNaN(this.limit) || this.limit < 1 || this.limit > 50)
       return this.replyError();
     const order = this.request.query.order;
     if(order !== '1' && order !== '-1')

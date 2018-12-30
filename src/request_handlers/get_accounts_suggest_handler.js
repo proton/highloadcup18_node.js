@@ -9,7 +9,7 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
 
     if (!this.myAccount)
       return this.replyNotFound();
-    if (isNaN(this.limit) || this.limit < 1)
+    if (isNaN(this.limit) || this.limit < 1 || this.limit > 20)
       return this.replyError();
 
     let accounts = this.filterAccounts();

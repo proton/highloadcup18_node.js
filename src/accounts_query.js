@@ -155,6 +155,7 @@ module.exports = class AccountsQuery {
 
   filterAccounts() {
     for (const [key, value] of Object.entries(this.query)) {
+      if (value.length === 0) throw 'bad_data';
       const f = quiredFieldsMapping[key];
       if (!f) throw 'bad_data';
       f(key, value, this.builder, this.current_ts);
