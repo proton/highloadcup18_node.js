@@ -46,7 +46,7 @@ module.exports = class DataLoader {
     const content = fs.readFileSync(filePath, 'utf8');
     const parsedContent = JSON.parse(content);
     for (const account of parsedContent.accounts) {
-      if( account.id % 1000 === 0) Utils.log(`loading account ${account.id}`);
+      // if( account.id % 1000 === 0) Utils.log(`loading account ${account.id}`);
       this.orm.addAccount(account);
     }
   }
