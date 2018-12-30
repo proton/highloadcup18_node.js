@@ -52,7 +52,8 @@ module.exports = class GetAccountGroupHandler extends WebRequestHandler {
           this.query_builder.join_interests = true;
           break;
         default:
-          console.log(['key', key])
+          console.log(['key', key]);
+          throw 'bad_data';
       }
     }
     
@@ -60,9 +61,7 @@ module.exports = class GetAccountGroupHandler extends WebRequestHandler {
     if (groups.length === 1 && groups[0].count === 0) return [];
 
     for (const group of groups) {
-      for (const key in group)
-        if (group[key] === null)
-          delete group[key];
+      this.removeNullFields(group);
     }
     return groups;
   }

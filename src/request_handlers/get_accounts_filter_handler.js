@@ -8,28 +8,11 @@ module.exports = class GetAccountsFilterHandler extends WebRequestHandler {
       return this.replyError();
       
     const accounts = this.filterAccounts();
-    return { accounts: accounts.map(this.asJson) };
+    return { accounts: accounts.map(this.accountAsJson) };
   }
 
   bindMethods() {
-    this.asJson = this.asJson.bind(this);
-  }
-
-  asJson(account) {
-    if (account.premium_start) {
-      account.premium = {
-        start: account.premium_start,
-        finish: account.premium_finish
-      };
-      delete account.premium_start;
-      delete account.premium_finish;
-    }
-
-    for (const key in account)
-      if (account[key] === null)
-        delete account[key];
-
-    return account;
+    this.accountAsJson = this.accountAsJson.bind(this);
   }
 
   filterAccounts() {

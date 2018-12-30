@@ -12,6 +12,26 @@ module.exports = class WebRequestHandler {
 
   bindMethods() { }
 
+  accountAsJson(account) {
+    if (account.premium_start) {
+      account.premium = {
+        start: account.premium_start,
+        finish: account.premium_finish
+      };
+      delete account.premium_start;
+      delete account.premium_finish;
+    }
+    this.removeNullFields(account);
+
+    return account;
+  }
+
+  removeNullFields(obj) {
+    for (const key in obj)
+      if (obj[key] === null)
+        delete obj[key];
+  }
+
   replyNotFound() {
     this.reply.code(404).type('text/html').send('Not Found');
   }
