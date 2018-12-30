@@ -29,7 +29,7 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
     builder.bindings.my_sex = this.myAccount.sex;
     builder.wheres.push('accounts.sex != @my_sex');
 
-    builder.orders.push(`(premium_start <= ${current_ts} AND premium_finish >= ${current_ts}) DESC`);
+    builder.orders.push(`CASE WHEN (premium_start <= ${current_ts} AND premium_finish >= ${current_ts}) THEN 1 ELSE 0 END DESC`);
     builder.orders.push("CASE accounts.status WHEN 'свободны' THEN 3 WHEN 'всё сложно' THEN 2 WHEN 'занятые' THEN 1 END DESC");
     builder.orders.push('COUNT(account_interests.interest) DESC');
     builder.orders.push(`ABS(accounts.birth - ${this.myAccount.birth}) ASC`);
@@ -39,6 +39,7 @@ module.exports = class GetAccountsRecommendHandler extends WebRequestHandler {
     builder.wheres.push(`account_interests.interest IN (SELECT interest FROM account_interests WHERE account_id = ${this.myAccount.id})`);
 
     builder.selects.add('accounts.id');
+    builder.selects.add('accounts.status');
     builder.selects.add('accounts.email');
     builder.selects.add('accounts.status');
     builder.selects.add('accounts.fname');
