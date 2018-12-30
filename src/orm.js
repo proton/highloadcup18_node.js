@@ -135,6 +135,17 @@ module.exports = class Orm {
     `);
   }
 
+  createIndexes() {
+    this.db.exec('CREATE INDEX account_country ON accounts (country)');
+    this.db.exec('CREATE INDEX account_city ON accounts (city)');
+    this.db.exec('CREATE INDEX account_joined ON accounts (joined)');
+    this.db.exec('CREATE INDEX account_birth ON accounts (birth)');
+    this.db.exec('CREATE INDEX account_interest_interest ON account_interests (interest)');
+    this.db.exec('CREATE INDEX account_like_like_id ON account_likes (like_id)');
+  // TODO: premium partial! CREATE INDEX po_parent ON purchaseorder(parent_po) WHERE parent_po IS NOT NULL;
+  // TODO: joined/birth as year?
+  }
+
   existingTables() {
    return this.db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").pluck().all();
   }
