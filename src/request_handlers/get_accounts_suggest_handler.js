@@ -31,26 +31,61 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
     let q = null;
     let r = null;
 
-    // тут я выбрал похожих чуваков
+    // - ищем пользователей, которых лайкали те же, кто лайкал меня, сравниваем время, когда лайкали их, а когда меня
 
-    builder0.from = 'account_likes AS simular_account_likes';
-    builder0.joins.push('INNER JOIN account_likes AS my_likes ON simular_account_likes.like_id = my_likes.like_id');
-    builder0.wheres.push(`simular_account_likes.account_id != ${this.myAccount.id}`);
-    builder0.wheres.push(`my_likes.account_id = ${this.myAccount.id}`);
-
-    builder0.selects.add('simular_account_likes.account_id');
-    builder0.selects.add('simular_account_likes.like_id');
-    builder0.selects.add('ABS(AVG(my_likes.ts) - AVG(simular_account_likes.ts)) AS likes_diff');
-    builder0.groups.push('simular_account_likes.account_id');
-    builder0.groups.push('simular_account_likes.like_id');
-
-    // builder0.wheres.push('accounts.sex = @my_sex');
-
-    builder0.orders.push('likes_diff ASC');
-
-    builder0.joins.push(`INNER JOIN accounts ON accounts.id = simular_account_likes.account_id`);
+    builder0.from = 'account_likes';
+    builder0.joins.push('INNER JOIN account_likes AS likes_to_me ON account_likes.account_id = likes_to_me.account_id');
+    builder0.wheres.push(`likes_to_me.like_id = ${this.myAccount.id}`);
+    builder0.joins.push(`INNER JOIN accounts ON accounts.id = account_likes.like_id`);
     builder0.bindings.my_sex = this.myAccount.sex;
-    builder0.wheres.push('accounts.sex = @my_sex');
+
+    // likes_to_me.ts - время, когда likes_to_me.account_id лайкнул меня
+    // account_likes.ts - время, когда account_likes.account_id (тот, кто лайкнул меня) лайкнул account_likes.like_id
+
+    builder0.selects.add('account_likes.like_id AS account_id');
+    builder0.selects.add('ABS((likes_to_me.ts) - (account_likes.ts)) AS likes_diff');
+    ///
+
+    // builder0.from = 'account_likes AS simular_account_likes';
+    // builder0.joins.push('INNER JOIN account_likes AS my_likes ON simular_account_likes.account_id = my_likes.account_id');
+    // builder0.wheres.push(`simular_account_likes.like_id != ${this.myAccount.id}`);
+    // builder0.wheres.push(`my_likes.like_id = ${this.myAccount.id}`);
+    //
+    // builder0.selects.add('simular_account_likes.account_id');
+    // builder0.selects.add('simular_account_likes.like_id');
+    // builder0.selects.add('ABS(AVG(my_likes.ts) - AVG(simular_account_likes.ts)) AS likes_diff');
+    // builder0.groups.push('simular_account_likes.account_id');
+    // builder0.groups.push('simular_account_likes.like_id');
+    //
+    // // builder0.wheres.push('accounts.sex = @my_sex');
+    //
+    // builder0.orders.push('likes_diff ASC');
+    // builder0.orders.push('likes_diff ASC');
+    //
+    // builder0.joins.push(`INNER JOIN accounts ON accounts.id = simular_account_likes.account_id`);
+    // builder0.bindings.my_sex = this.myAccount.sex;
+
+    // // //
+
+    // builder0.from = 'account_likes AS simular_account_likes';
+    // builder0.joins.push('INNER JOIN account_likes AS my_likes ON simular_account_likes.like_id = my_likes.like_id');
+    // builder0.wheres.push(`simular_account_likes.account_id != ${this.myAccount.id}`);
+    // builder0.wheres.push(`my_likes.account_id = ${this.myAccount.id}`);
+    //
+    // builder0.selects.add('simular_account_likes.account_id');
+    // builder0.selects.add('simular_account_likes.like_id');
+    // builder0.selects.add('ABS(AVG(my_likes.ts) - AVG(simular_account_likes.ts)) AS likes_diff');
+    // builder0.groups.push('simular_account_likes.account_id');
+    // builder0.groups.push('simular_account_likes.like_id');
+    //
+    // // builder0.wheres.push('accounts.sex = @my_sex');
+    //
+    // builder0.orders.push('likes_diff ASC');
+    // builder0.orders.push('likes_diff ASC');
+
+    // builder0.joins.push(`INNER JOIN accounts ON accounts.id = simular_account_likes.account_id`);
+    // builder0.bindings.my_sex = this.myAccount.sex;
+    // builder0.wheres.push('accounts.sex = @my_sex');
 
 
     // q = builder0.call();
@@ -60,18 +95,16 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
 
     const builder1 = new QueryBuilder(this.orm);
     builder1.bindings = builder0.bindings;
-    // const accounts_query = new AccountsQuery(builder, this.request.query, current_ts);
-    // accounts_query.call();
-
     builder1.from = `(${builder0.sql()}) AS simular_likes`;
+
     builder1.selects.add('simular_likes.account_id');
-    builder1.selects.add('SUM(CASE simular_likes.likes_diff WHEN 0 THEN 1 ELSE (1 / simular_likes.likes_diff) END) AS simularity');
+    builder1.selects.add('SUM(CASE simular_likes.likes_diff WHEN 0 THEN 1 ELSE (1.0 / simular_likes.likes_diff) END) AS simularity');
+    // builder1.selects.add('SUM(CASE simular_likes. WHEN 0 THEN 1 ELSE (1 / simular_likes.likes_diff) END) AS simularity');
     builder1.groups.push('simular_likes.account_id');
-    // builder1.orders.push('SUM(CASE simular_likes.likes_diff WHEN 0 THEN 1 ELSE (1 / simular_likes.likes_diff) END) DESC');
+    builder1.orders.push('SUM(CASE simular_likes.likes_diff WHEN 0 THEN 1 ELSE (1.0 / simular_likes.likes_diff) END) DESC');
 
     const builder = new QueryBuilder(this.orm);
     builder.bindings = builder1.bindings;
-    // а здесь я выбираю тех, кого мы с ними вместе лайкали, а надо тех, кого лайкнули они, а я - нет
     builder.from = `(${builder1.sql()}) AS simular_accounts`;
 
     builder.joins.push(`INNER JOIN account_likes ON account_likes.account_id = simular_accounts.account_id`);
@@ -99,7 +132,7 @@ module.exports = class GetAccountsSuggestHandler extends WebRequestHandler {
     builder.selects.add('accounts.premium_start');
     builder.selects.add('accounts.premium_finish');
 
-    // builder.wheres.push('accounts.id = 9972');
+    // builder.wheres.push('accounts.id = 9923');
 
     builder.limit = this.limit;
 
